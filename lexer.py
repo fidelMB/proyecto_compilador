@@ -37,6 +37,7 @@ tokens = [
     "DIVIDE",
     "SEMICOLON",
     "COLON",
+    "COMMA",
     "L_PARENTHESIS",
     "R_PARENTHESIS",
     "L_CURLY_BRACE",
@@ -59,13 +60,14 @@ t_MINUS = r"-"
 t_MULTIPLY = r"\*"
 t_DIVIDE = r"/"
 t_SEMICOLON = r";"
+t_ASSIGN = r":="
 t_COLON = r":"
+t_COMMA = r","
 t_L_PARENTHESIS = r"\("
 t_R_PARENTHESIS = r"\)"
 t_L_CURLY_BRACE = r"\{"
 t_R_CURLY_BRACE = r"\}"
 t_EQUALITY = r"=="
-t_ASSIGN = r"="
 t_INEQUALITY = r"!="
 t_LESS_EQUAL = r"<="
 t_GREATER_EQUAL = r">="
