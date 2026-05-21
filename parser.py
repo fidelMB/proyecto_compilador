@@ -12,26 +12,25 @@ precedence = (
 
 
 def p_program(p):
-    """program: PROGRAM MAIN L_CURLY_BRACE declaration_list begin_block R_CURLY_BRACE"""
+    """program : PROGRAM MAIN L_CURLY_BRACE declaration_list begin_block R_CURLY_BRACE"""
 
 
 def p_declaration(p):
-    """declaration: VAR id_list COLON type SEMICOLON"""
+    """declaration : VAR id_list COLON type SEMICOLON"""
 
 
 def p_declaration_list(p):
-    """declaration_list: declaration
-    | declaration declaration_list
+    """declaration_list : declaration declaration_list
     | empty"""
 
 
 def p_id_list(p):
-    """id_list: ID
+    """id_list : ID
     | ID COMMA id_list"""
 
 
 def p_type(p):
-    """type: INT_DECLARATION
+    """type : INT_DECLARATION
     | FLOAT_DECLARATION
     | BOOL_DECLARATION
     | STRING_DECLARATION
@@ -39,12 +38,12 @@ def p_type(p):
 
 
 def p_begin_block(p):
-    """begin_block: BEGIN SEMICOLON statement_list END SEMICOLON
+    """begin_block : BEGIN SEMICOLON statement_list END SEMICOLON
     | empty"""
 
 
 def p_statement(p):
-    """statement: expression SEMICOLON
+    """statement : expression SEMICOLON
     | assignment
     | for
     | while
@@ -53,7 +52,7 @@ def p_statement(p):
 
 
 def p_statement_list(p):
-    """statement_list: statement
+    """statement_list : statement
     | statement statement_list"""
 
 
@@ -75,18 +74,18 @@ def p_expression(p):
 
 
 def p_unary_expression(p):
-    """unary_expression: ID INCREMENT
+    """unary_expression : ID INCREMENT
     | ID DECREMENT"""
 
 
 def p_operand(p):
-    """operand: ID
+    """operand : ID
     | cte
     | L_PARENTHESIS expression R_PARENTHESIS"""
 
 
 def p_cte(p):
-    """cte: FLOAT_CTE
+    """cte : FLOAT_CTE
     | INT_CTE
     | BOOL_CTE
     | STRING_CTE
@@ -94,33 +93,40 @@ def p_cte(p):
 
 
 def p_assignment(p):
-    """assignment: ID ASSIGN expression SEMICOLON"""
+    """assignment : ID ASSIGN expression SEMICOLON"""
 
 
 def p_write(p):
-    """write: WRITE L_PARENTHESIS expression R_PARENTHESIS SEMICOLON"""
+    """write : WRITE L_PARENTHESIS expression R_PARENTHESIS SEMICOLON"""
 
 
 def p_while(p):
-    """while: WHILE L_PARENTHESIS expression R_PARENTHESIS DO L_CURLY_BRACE statement_list R_CURLY_BRACE"""
+    """while : WHILE L_PARENTHESIS expression R_PARENTHESIS DO L_CURLY_BRACE statement_list R_CURLY_BRACE"""
 
 
 def p_for(p):
-    """for: FOR L_PARENTHESIS assignment expression SEMICOLON expression R_PARENTHESIS L_CURLY_BRACE statement_list R_CURLY_BRACE"""
+    """for : FOR L_PARENTHESIS assignment expression SEMICOLON expression R_PARENTHESIS L_CURLY_BRACE statement_list R_CURLY_BRACE"""
 
 
 def p_if(p):
-    """if: IF L_PARENTHESIS expression R_PARENTHESIS THEN L_CURLY_BRACE statement_list R_CURLY_BRACE else_block"""
+    """if : IF L_PARENTHESIS expression R_PARENTHESIS THEN L_CURLY_BRACE statement_list R_CURLY_BRACE else_block"""
 
 
 def p_else_block(p):
-    """else_block: ELSE L_CURLY_BRACE statement_list R_CURLY_BRACE
+    """else_block : ELSE L_CURLY_BRACE statement_list R_CURLY_BRACE
     | empty"""
 
 
 def p_empty(p):
-    """empty:"""
+    """empty :"""
     pass
+
+
+def p_error(p):
+    if p:
+        print(f"Syntax error at '{p.value}' line {p.lineno}")
+    else:
+        print("Syntax error at EOF")
 
 
 parser = yacc.yacc()

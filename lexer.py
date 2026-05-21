@@ -20,13 +20,14 @@ reserved = {
     "else": "ELSE",
     "for": "FOR",
     "while": "WHILE",
+    "true": "BOOL_CTE",
+    "false": "BOOL_CTE",
 }
 
 tokens = [
     "ID",
     "FLOAT_CTE",
     "INT_CTE",
-    "BOOL_CTE",
     "STRING_CTE",
     "CHAR_CTE",
     "INCREMENT",
@@ -51,7 +52,7 @@ tokens = [
     "GREATER_THAN",
 ]
 
-tokens = tokens + list(reserved.values())
+tokens = tokens + list(set(reserved.values()))
 
 t_INCREMENT = r"\+\+"
 t_DECREMENT = r"--"
@@ -78,6 +79,8 @@ t_GREATER_THAN = r">"
 def t_ID(t):
     r"[a-zA-Z_][a-zA-Z_0-9]*"
     t.type = reserved.get(t.value, "ID")
+    if t.type == "BOOL_CTE":
+        t.value = True if t.value == "true" else False
     return t
 
 
@@ -90,12 +93,6 @@ def t_FLOAT_CTE(t):
 def t_INT_CTE(t):
     r"\d+"
     t.value = int(t.value)
-    return t
-
-
-def t_BOOL_CTE(t):
-    r"true|false"
-    t.value = True if t.value == "true" else False
     return t
 
 
