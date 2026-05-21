@@ -24,11 +24,11 @@ reserved = {
 
 tokens = [
     "ID",
-    "FLOAT",
-    "INT",
-    "BOOL",
-    "STRING",
-    "CHAR",
+    "FLOAT_CTE",
+    "INT_CTE",
+    "BOOL_CTE",
+    "STRING_CTE",
+    "CHAR_CTE",
     "INCREMENT",
     "DECREMENT",
     "PLUS",
@@ -81,31 +81,31 @@ def t_ID(t):
     return t
 
 
-def t_FLOAT(t):
+def t_FLOAT_CTE(t):
     r"\d+\.\d+"
     t.value = float(t.value)
     return t
 
 
-def t_INT(t):
+def t_INT_CTE(t):
     r"\d+"
     t.value = int(t.value)
     return t
 
 
-def t_BOOL(t):
+def t_BOOL_CTE(t):
     r"true|false"
     t.value = True if t.value == "true" else False
     return t
 
 
-def t_STRING(t):
+def t_STRING_CTE(t):
     r'"[^"]*"'
     t.value = str(t.value)
     return t
 
 
-def t_CHAR(t):
+def t_CHAR_CTE(t):
     r"\'.\'"
     t.value = str(t.value)
     return t
