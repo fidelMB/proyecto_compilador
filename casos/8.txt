@@ -1,0 +1,5 @@
+program main{
+	begin;
+		write((true or false) and true);
+	end;
+}

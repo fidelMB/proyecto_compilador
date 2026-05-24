@@ -30,7 +30,6 @@ class CompilerState:
     # --- For loop ---------------------------------------------------------
 
     def build_increment_quad(self, var_name, lineno=None):
-
         symbol = self.symbols.lookup(var_name, lineno)
 
         if symbol.var_type not in (Type.INT, Type.FLOAT):
@@ -39,10 +38,10 @@ class CompilerState:
                 lineno,
             )
 
-        return ("+", symbol.address, 1, symbol.address)
+        one_address = self.memory.alloc_const(1, Type.INT)
+        return ("+", symbol.address, one_address, symbol.address)
 
     def build_decrement_quad(self, var_name, lineno=None):
-
         symbol = self.symbols.lookup(var_name, lineno)
 
         if symbol.var_type not in (Type.INT, Type.FLOAT):
@@ -51,7 +50,36 @@ class CompilerState:
                 lineno,
             )
 
-        return ("-", symbol.address, 1, symbol.address)
+        one_address = self.memory.alloc_const(1, Type.INT)
+        return ("-", symbol.address, one_address, symbol.address)
+
+    def emit_inc_dec(self, var_name, op, lineno=None, produce_value=False):
+        """
+        op: "++" or "--"
+        produce_value: whether expression result is needed (post-increment)
+        """
+        # This lookup is what triggers UndeclaredVariableError
+        symbol = self.symbols.lookup(var_name, lineno)
+
+        if symbol.var_type not in (Type.INT, Type.FLOAT):
+            raise CompilerError(
+                f"Cannot apply '{op}' to variable of type '{symbol.var_type.value}'",
+                lineno,
+            )
+
+        one_address = self.memory.alloc_const(1, Type.INT)
+        actual_op = "+" if op == "++" else "-"
+
+        if produce_value:
+            # Save original value into a temp before modifying (post-increment semantics)
+            temp = self.memory.alloc("temp", symbol.var_type)
+            self.quads.emit(":=", symbol.address, None, temp)
+            self.quads.emit(actual_op, symbol.address, one_address, symbol.address)
+            self.operands.push(temp)
+            self.types.push(symbol.var_type)
+        else:
+            # No result needed — just mutate in place
+            self.quads.emit(actual_op, symbol.address, one_address, symbol.address)
 
     def emit_quad_tuple(self, quad):
         op, left, right, result = quad
@@ -152,7 +180,6 @@ class CompilerState:
         self.quads.emit(":=", value, None, symbol.address)
 
     def generate_increment(self, var_name: str, lineno=None):
-
         symbol = self.symbols.lookup(var_name, lineno)
 
         if symbol.var_type not in (Type.INT, Type.FLOAT):
@@ -164,14 +191,13 @@ class CompilerState:
         temp = self.memory.alloc("temp", symbol.var_type)
         self.quads.emit(":=", symbol.address, None, temp)
 
-        # variable = variable + 1
-        self.quads.emit("+", symbol.address, 1, symbol.address)
+        one_address = self.memory.alloc_const(1, Type.INT)
+        self.quads.emit("+", symbol.address, one_address, symbol.address)
 
         self.operands.push(temp)
         self.types.push(symbol.var_type)
 
     def generate_decrement(self, var_name: str, lineno=None):
-
         symbol = self.symbols.lookup(var_name, lineno)
 
         if symbol.var_type not in (Type.INT, Type.FLOAT):
@@ -183,7 +209,8 @@ class CompilerState:
         temp = self.memory.alloc("temp", symbol.var_type)
         self.quads.emit(":=", symbol.address, None, temp)
 
-        self.quads.emit("-", symbol.address, 1, symbol.address)
+        one_address = self.memory.alloc_const(1, Type.INT)
+        self.quads.emit("-", symbol.address, one_address, symbol.address)
 
         self.operands.push(temp)
         self.types.push(symbol.var_type)
@@ -269,3 +296,21 @@ class CompilerState:
         print(self.symbols)
         print("\n=== Quadruples ===")
         print(self.quads)
+
+    def save_loop_start(self):
+        self.jumps.push(self.quads.current_index())
+
+    def generate_for_end(self):
+        """
+        FOR loop finalization:
+        - jump back to loop start
+        - patch GotoF
+        """
+
+        # 1. jump back to loop start
+        loop_start = self.jumps.pop()
+        self.quads.emit("Goto", None, None, loop_start)
+
+        # 2. patch conditional exit
+        gotof_idx = self.jumps.pop()
+        self.quads.patch(gotof_idx, self.quads.current_index())

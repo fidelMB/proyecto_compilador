@@ -1,0 +1,30 @@
+program main{
+	var a, b : int;
+	var x, y : float;
+	var result : int;
+	begin;
+		write("Valid type combinations");
+		
+		a := 5;
+		b := 3;
+		result := a + b;
+		write(result);
+		
+		result := a * b;
+		write(result);
+		
+		result := a - b;
+		write(result);
+		
+		if(a > b) then
+		{
+			write("a is greater than b");
+		}
+		
+		if(a <= b) then
+		{
+			write("a is less or equal to b");
+		}
+		
+	end;
+}

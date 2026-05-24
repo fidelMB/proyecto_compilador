@@ -40,6 +40,11 @@ class QuadrupleList:
     # Temporary variables (avail)
     # ------------------------------------------------------------------
 
+    def new_temp(self) -> str:
+        """Return a fresh temporary variable name: t1, t2, …"""
+
+        return ""
+
     # ------------------------------------------------------------------
     # Jump patching
     # ------------------------------------------------------------------

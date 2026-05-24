@@ -1,0 +1,8 @@
+program main{
+	begin;
+		if(true) then
+		{
+			write("hola");
+		}
+	end;
+}

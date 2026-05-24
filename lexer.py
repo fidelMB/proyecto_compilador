@@ -98,13 +98,13 @@ def t_INT_CTE(t):
 
 def t_STRING_CTE(t):
     r'"[^"]*"'
-    t.value = str(t.value)
+    t.value = t.value[1:-1]
     return t
 
 
 def t_CHAR_CTE(t):
     r"\'.\'"
-    t.value = str(t.value)
+    t.value = t.value[1:-1]
     return t
 
 

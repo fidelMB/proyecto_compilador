@@ -1,0 +1,12 @@
+program main {
+    var counter : int;
+    begin;
+        write("Testing conditional type requirement validation");
+        counter := 5;
+
+        while (counter) do { 
+            write(counter);
+            counter--;
+        };
+    end;
+}

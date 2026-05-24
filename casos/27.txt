@@ -1,0 +1,11 @@
+program main {
+    var memory_address : int;
+    var calculation : int;
+    begin;
+        write("Testing self-referential initialization semantics");
+        
+        calculation := memory_address + 5;
+        
+        write(calculation);
+    end;
+}

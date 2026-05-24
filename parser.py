@@ -137,8 +137,16 @@ def p_else_jump(p):
     else_jump :
     """
 
-    compiler.generate_goto()
-    compiler.patch_jump()
+    # Emit Goto (which will jump past the else block)
+    idx = compiler.quads.emit("Goto", None, None, None)
+
+    # Patch the GotoF from if_condition to jump to the start of else block
+    # (which is the next instruction after Goto)
+    gotof_idx = compiler.jumps.pop()
+    compiler.quads.patch(gotof_idx, compiler.quads.current_index())
+
+    # Push Goto index for patching at end of else_block
+    compiler.jumps.push(idx)
 
 
 def p_while(p):
@@ -166,42 +174,33 @@ def p_while_condition(p):
 
 def p_for(p):
     """
-    for : FOR L_PARENTHESIS assignment for_start expression for_condition SEMICOLON for_increment R_PARENTHESIS L_CURLY_BRACE statement_list R_CURLY_BRACE
+    for : FOR L_PARENTHESIS assignment for_start expression for_condition SEMICOLON expression for_update R_PARENTHESIS L_CURLY_BRACE statement_list R_CURLY_BRACE
     """
 
-    increment_quad = compiler.pending_for_increments.pop()
-    compiler.emit_quad_tuple(increment_quad)
-    compiler.generate_loop_end()
-
-
-def p_for_increment(p):
-    """
-    for_increment : ID INCREMENT
-                  | ID DECREMENT
-    """
-
-    if p[2] == "++":
-        quad = compiler.build_increment_quad(p[1], p.lineno(1))
-    else:
-        quad = compiler.build_decrement_quad(p[1], p.lineno(1))
-
-    compiler.pending_for_increments.push(quad)
+    compiler.generate_for_end()
 
 
 def p_for_start(p):
-    """
-    for_start :
-    """
-
-    compiler.save_jump_index()
+    "for_start :"
+    compiler.save_loop_start()
 
 
 def p_for_condition(p):
-    """
-    for_condition :
-    """
-
+    "for_condition :"
     compiler.generate_gotof()
+
+
+def p_for_update(p):
+    "for_update :"
+    # evaluate update expression result, then ignore it
+    if not compiler.operands.is_empty():
+        compiler.operands.pop()
+        compiler.types.pop()
+
+
+def p_generate_for_end(p):
+    "generate_for_end :"
+    compiler.generate_for_end()
 
 
 def p_expression(p):
@@ -324,20 +323,14 @@ def p_cte_char(p):
     compiler.push_constant(p[1], "CHAR_CTE")
 
 
-def p_unary_increment(p):
+def p_unary_expression(p):
     """
     unary_expression : ID INCREMENT
+                     | ID DECREMENT
     """
 
-    compiler.generate_increment(p[1], p.lineno(1))
-
-
-def p_unary_decrement(p):
-    """
-    unary_expression : ID DECREMENT
-    """
-
-    compiler.generate_decrement(p[1], p.lineno(1))
+    op = p[2]
+    compiler.emit_inc_dec(p[1], op, p.lineno(1), produce_value=True)
 
 
 def p_factor_uminus(p):

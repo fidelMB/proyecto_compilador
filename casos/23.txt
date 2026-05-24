@@ -1,0 +1,17 @@
+program main {
+    var i, limit, total : int;
+    begin;
+        write("Testing mutation of loop control variable constraint");
+        total := 0;
+        limit := 10;
+        
+        for (i := 1; i < limit; i++) {
+            total := total + i;
+            
+            i := i - 1; 
+            
+            i--; 
+        }
+        write(total);
+    end;
+}

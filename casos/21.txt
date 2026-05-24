@@ -1,0 +1,13 @@
+program main {
+    var label : string;
+    var state : bool;
+    begin;
+        write("Testing illegal binary operation mix");
+        label := "Status_Check";
+        state := false;
+
+        if (label + state) then {
+            write("Invalid operation success alert");
+        };
+    end;
+}
