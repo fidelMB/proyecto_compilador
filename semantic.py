@@ -20,6 +20,7 @@ class CompilerState:
         self.symbols = SymbolTable(self.memory)
         self.quads = QuadrupleList()
         self.pending_for_increments = Stack()
+        self.for_update_starts = Stack()
 
         # Semantic stacks
         self.operands = Stack()  # variable addresses or temp names
@@ -300,17 +301,30 @@ class CompilerState:
     def save_loop_start(self):
         self.jumps.push(self.quads.current_index())
 
+    def mark_for_update_start(self):
+        self.for_update_starts.push(self.quads.current_index())
+
+    def save_for_update(self):
+        if not self.operands.is_empty():
+            self.operands.pop()
+            self.types.pop()
+
+        update_start = self.for_update_starts.pop()
+        update_quads = self.quads.extract_from(update_start)
+        self.pending_for_increments.push(update_quads)
+
     def generate_for_end(self):
         """
         FOR loop finalization:
+        - move the update expression after the body
         - jump back to loop start
         - patch GotoF
         """
 
-        # 1. jump back to loop start
+        update_quads = self.pending_for_increments.pop()
+        self.quads.extend(update_quads)
+
+        gotof_idx = self.jumps.pop()
         loop_start = self.jumps.pop()
         self.quads.emit("Goto", None, None, loop_start)
-
-        # 2. patch conditional exit
-        gotof_idx = self.jumps.pop()
         self.quads.patch(gotof_idx, self.quads.current_index())

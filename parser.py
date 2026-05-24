@@ -174,7 +174,7 @@ def p_while_condition(p):
 
 def p_for(p):
     """
-    for : FOR L_PARENTHESIS assignment for_start expression for_condition SEMICOLON expression for_update R_PARENTHESIS L_CURLY_BRACE statement_list R_CURLY_BRACE
+    for : FOR L_PARENTHESIS assignment for_start expression for_condition SEMICOLON for_update_start expression for_update R_PARENTHESIS L_CURLY_BRACE statement_list R_CURLY_BRACE
     """
 
     compiler.generate_for_end()
@@ -190,17 +190,14 @@ def p_for_condition(p):
     compiler.generate_gotof()
 
 
+def p_for_update_start(p):
+    "for_update_start :"
+    compiler.mark_for_update_start()
+
+
 def p_for_update(p):
     "for_update :"
-    # evaluate update expression result, then ignore it
-    if not compiler.operands.is_empty():
-        compiler.operands.pop()
-        compiler.types.pop()
-
-
-def p_generate_for_end(p):
-    "generate_for_end :"
-    compiler.generate_for_end()
+    compiler.save_for_update()
 
 
 def p_expression(p):

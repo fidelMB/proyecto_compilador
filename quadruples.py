@@ -67,6 +67,14 @@ class QuadrupleList:
     def get(self, index: int) -> Quadruple:
         return self._quads[index]
 
+    def extract_from(self, start: int) -> list[Quadruple]:
+        extracted = self._quads[start:]
+        del self._quads[start:]
+        return extracted
+
+    def extend(self, quads: list[Quadruple]):
+        self._quads.extend(quads)
+
     def all(self) -> list[Quadruple]:
         return list(self._quads)
 
