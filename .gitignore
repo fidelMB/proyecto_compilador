@@ -1,0 +1,5 @@
+casos/
+parsetab.py
+parser.out
+__pycache__/
+env/
