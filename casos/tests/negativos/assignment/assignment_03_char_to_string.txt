@@ -1,0 +1,6 @@
+program main{
+    var text : string;
+    begin;
+        text := 'x';
+    end;
+}

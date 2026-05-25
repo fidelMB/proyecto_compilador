@@ -1,0 +1,11 @@
+program main{
+    var test : int;
+    function test(){
+    begin;
+        write("bad");
+    end;
+    }
+    begin;
+        test := 1;
+    end;
+}

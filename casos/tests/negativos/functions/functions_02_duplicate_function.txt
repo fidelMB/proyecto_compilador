@@ -1,0 +1,15 @@
+program main{
+    function f(){
+    begin;
+        write("one");
+    end;
+    }
+    function f(){
+    begin;
+        write("two");
+    end;
+    }
+    begin;
+        f();
+    end;
+}

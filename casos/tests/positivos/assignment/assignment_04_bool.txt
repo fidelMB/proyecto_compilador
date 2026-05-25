@@ -1,0 +1,7 @@
+program main{
+    var ok : bool;
+    begin;
+        ok := false;
+        write(ok);
+    end;
+}

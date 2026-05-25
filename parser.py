@@ -1,6 +1,7 @@
 from ply import yacc
 from lexer import tokens
 from semantic import CompilerState
+from utils.errors import CompilerError
 
 precedence = (
     ("left", "OR"),
@@ -13,6 +14,12 @@ precedence = (
 )
 
 compiler = CompilerState()
+
+
+def reset_compiler():
+    global compiler
+    compiler = CompilerState()
+    return compiler
 
 
 def p_program(p):
@@ -471,9 +478,9 @@ def p_empty(p):
 
 def p_error(p):
     if p:
-        print(f"Syntax error at '{p.value}' line {p.lineno}")
+        raise CompilerError(f"Syntax error at '{p.value}'", p.lineno)
     else:
-        print("Syntax error at EOF")
+        raise CompilerError("Syntax error at EOF")
 
 
 parser = yacc.yacc()

@@ -1,0 +1,7 @@
+program main{
+    var x : int;
+    begin;
+        x := 5.5;
+        write(x);
+    end;
+}

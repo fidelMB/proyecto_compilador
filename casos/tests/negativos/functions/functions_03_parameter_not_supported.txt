@@ -1,0 +1,11 @@
+program main{
+    var x : int;
+    function setx(x){
+    begin;
+        write(x);
+    end;
+    }
+    begin;
+        x := 1;
+    end;
+}

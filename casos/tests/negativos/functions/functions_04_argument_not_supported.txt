@@ -1,0 +1,12 @@
+program main{
+    var x : int;
+    function f(){
+    begin;
+        write("f");
+    end;
+    }
+    begin;
+        x := 1;
+        f(x);
+    end;
+}

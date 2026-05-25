@@ -1,0 +1,9 @@
+program main{
+    var count : int;
+    var price : float;
+    begin;
+        count := 2;
+        price := 4.5;
+        write(count + price);
+    end;
+}

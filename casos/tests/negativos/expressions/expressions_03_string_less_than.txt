@@ -1,0 +1,7 @@
+program main{
+    var text : string;
+    begin;
+        text := "a";
+        write(text < "b");
+    end;
+}

@@ -1,0 +1,10 @@
+program main{
+    var i,total : int;
+    begin;
+        total := 0;
+        for (i:=3;i>0;i--){
+            total := total + i;
+        }
+        write(total);
+    end;
+}

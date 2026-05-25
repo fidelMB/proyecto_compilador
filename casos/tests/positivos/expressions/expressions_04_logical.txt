@@ -1,0 +1,7 @@
+program main{
+    var ok : bool;
+    begin;
+        ok := (5 > 3) and (2 < 4);
+        write(ok);
+    end;
+}

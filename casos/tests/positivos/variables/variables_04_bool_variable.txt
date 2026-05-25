@@ -1,0 +1,10 @@
+program main{
+    var ready : bool;
+    begin;
+        ready := true;
+        if (ready == true) then
+        {
+            write("ready");
+        }
+    end;
+}

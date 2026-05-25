@@ -1,0 +1,6 @@
+program main{
+    var a : int;
+    begin;
+        a := b + 1;
+    end;
+}

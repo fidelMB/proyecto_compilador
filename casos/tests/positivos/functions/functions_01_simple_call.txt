@@ -1,0 +1,13 @@
+program main{
+    var x : int;
+    function setx(){
+    begin;
+        x := 7;
+    end;
+    }
+    begin;
+        x := 0;
+        setx();
+        write(x);
+    end;
+}

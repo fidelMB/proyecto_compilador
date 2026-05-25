@@ -1,0 +1,10 @@
+program main{
+    var text : string;
+    var value : int;
+    begin;
+        text := "a" + "b";
+        value := -5 + 10;
+        write(text);
+        write(value);
+    end;
+}

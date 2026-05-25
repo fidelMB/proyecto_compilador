@@ -1,0 +1,10 @@
+program main{
+    function f(){
+    begin;
+        write("f");
+    end;
+    }
+    begin;
+        f()
+    end;
+}

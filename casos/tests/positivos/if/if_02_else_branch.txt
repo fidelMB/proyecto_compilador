@@ -1,0 +1,14 @@
+program main{
+    var a,b : int;
+    begin;
+        a := 1;
+        b := 3;
+        if (a > b) then
+        {
+            write("bad");
+        }else
+        {
+            write("else");
+        }
+    end;
+}

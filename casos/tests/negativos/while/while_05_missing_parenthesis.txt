@@ -1,0 +1,10 @@
+program main{
+    var n : int;
+    begin;
+        n := 1;
+        while n > 0) do
+        {
+            n--;
+        }
+    end;
+}

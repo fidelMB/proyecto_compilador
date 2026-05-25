@@ -1,0 +1,18 @@
+program main{
+    var n : int;
+    function down(){
+    begin;
+        if (n > 0) then
+        {
+            write(n);
+            n--;
+            down();
+        }
+    end;
+    }
+    begin;
+        n := 2;
+        down();
+        write("done");
+    end;
+}

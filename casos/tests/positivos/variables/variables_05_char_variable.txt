@@ -1,0 +1,7 @@
+program main{
+    var letter : char;
+    begin;
+        letter := 'a';
+        write(letter);
+    end;
+}

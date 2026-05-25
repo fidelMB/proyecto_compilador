@@ -1,0 +1,8 @@
+program main{
+    var i : int;
+    begin;
+        for (i:=0;i+1;i++){
+            write(i);
+        }
+    end;
+}

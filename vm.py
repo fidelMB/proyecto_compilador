@@ -15,7 +15,7 @@ class VirtualMachine:
     memory store, and operation dispatcher.
     """
 
-    def __init__(self, quadruples, symbols, memory, debug=False):
+    def __init__(self, quadruples, symbols, memory, debug=False, exit_on_error=True):
         """
         Initialize the VM with:
         - quadruples: QuadrupleList from compilation
@@ -27,6 +27,7 @@ class VirtualMachine:
         self.symbols = symbols
         self.memory = memory
         self.debug = debug
+        self.exit_on_error = exit_on_error
         self.pc = 0  # Program counter
         self.call_stack = []
         self.output = []  # Captured output (for later introspection)
@@ -59,7 +60,9 @@ class VirtualMachine:
             print(f"\n[RUNTIME ERROR at PC={self.pc}] {e}")
             if self.debug:
                 print(f"Quadruple: {self.quadruples[self.pc]}")
-            sys.exit(1)
+            if self.exit_on_error:
+                sys.exit(1)
+            raise
 
     def _execute_quadruple(self, quad):
         """Dispatch quadruple to appropriate handler based on operator."""
