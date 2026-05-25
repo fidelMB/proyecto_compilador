@@ -21,6 +21,9 @@ class CompilerState:
         self.quads = QuadrupleList()
         self.pending_for_increments = Stack()
         self.for_update_starts = Stack()
+        self.functions = {}
+        self.pending_function_calls = {}
+        self.main_goto = None
 
         # Semantic stacks
         self.operands = Stack()  # variable addresses or temp names
@@ -275,6 +278,49 @@ class CompilerState:
         loop_start = self.jumps.pop()
         self.quads.emit("Goto", None, None, loop_start)
         self.quads.patch(gotof_idx, self.quads.current_index())
+
+    # --- Functions ----------------------------------------------------
+
+    def emit_main_goto(self):
+        self.main_goto = self.quads.emit("Goto", None, None, None)
+
+    def patch_main_start(self):
+        if self.main_goto is not None:
+            self.quads.patch(self.main_goto, self.quads.current_index())
+
+    def register_function(self, name: str, lineno: int = None):
+        if name in self.functions:
+            raise CompilerError(f"Function '{name}' already declared", lineno)
+
+        if self.symbols.exists(name):
+            raise CompilerError(
+                f"Function '{name}' conflicts with an existing variable", lineno
+            )
+
+        start = self.quads.current_index()
+        self.functions[name] = start
+
+        for call_idx in self.pending_function_calls.pop(name, []):
+            self.quads.patch(call_idx, start)
+
+    def generate_function_end(self):
+        self.quads.emit("EndFunc", None, None, None)
+
+    def generate_function_call(self, name: str, lineno: int = None):
+        if name in self.functions:
+            target = self.functions[name]
+        else:
+            target = None
+
+        idx = self.quads.emit("Gosub", None, None, target)
+
+        if target is None:
+            self.pending_function_calls.setdefault(name, []).append(idx)
+
+    def validate_function_calls(self):
+        if self.pending_function_calls:
+            name = next(iter(self.pending_function_calls))
+            raise CompilerError(f"Function '{name}' called before declaration")
 
     # --- Write --------------------------------------------------------
 

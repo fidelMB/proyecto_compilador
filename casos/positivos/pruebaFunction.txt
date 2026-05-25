@@ -1,0 +1,21 @@
+program main{
+    var i,n,x : int;
+
+    function factorial(){
+    begin;
+        while (n>=1) do
+        {
+            x := x * n;
+            n--;
+        }
+    end;
+    }
+
+    begin;
+        write("invoca factorial");
+        n := 5;
+        x := 1;
+        factorial();
+        write(x);
+    end;
+}

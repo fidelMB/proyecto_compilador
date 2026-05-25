@@ -1,0 +1,20 @@
+program main{
+    var n : int;
+
+    function countdown(){
+    begin;
+        if (n > 0) then
+        {
+            write(n);
+            n--;
+            countdown();
+        }
+    end;
+    }
+
+    begin;
+        n := 3;
+        countdown();
+        write("done");
+    end;
+}

@@ -28,6 +28,7 @@ class VirtualMachine:
         self.memory = memory
         self.debug = debug
         self.pc = 0  # Program counter
+        self.call_stack = []
         self.output = []  # Captured output (for later introspection)
 
     def run(self):
@@ -105,6 +106,10 @@ class VirtualMachine:
             self._op_goto(quad.result)
         elif op == "GotoF":
             self._op_gotof(quad.left, quad.result)
+        elif op == "Gosub":
+            self._op_gosub(quad.result)
+        elif op == "EndFunc":
+            self._op_endfunc()
 
         # I/O
         elif op == "Write":
@@ -300,6 +305,21 @@ class VirtualMachine:
 
         if not condition:
             self.pc = target - 1  # -1 because pc will be incremented after this quad
+
+    def _op_gosub(self, target):
+        """Function call: save return address and jump to function start."""
+        if target is None:
+            raise ValueError("Function call target was not resolved")
+
+        self.call_stack.append(self.pc)
+        self.pc = target - 1
+
+    def _op_endfunc(self):
+        """Return from a function call."""
+        if not self.call_stack:
+            raise ValueError("EndFunc executed without an active function call")
+
+        self.pc = self.call_stack.pop()
 
     # ======================================================================
     # I/O

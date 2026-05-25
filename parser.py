@@ -17,9 +17,10 @@ compiler = CompilerState()
 
 def p_program(p):
     """
-    program : PROGRAM MAIN L_CURLY_BRACE declaration_list begin_block R_CURLY_BRACE
+    program : PROGRAM MAIN L_CURLY_BRACE declaration_list main_goto function_declaration_list main_start begin_block R_CURLY_BRACE
     """
 
+    compiler.validate_function_calls()
     print("Program parsed successfully")
 
 
@@ -75,6 +76,45 @@ def p_begin_block(p):
     """
 
 
+def p_main_goto(p):
+    """
+    main_goto :
+    """
+
+    compiler.emit_main_goto()
+
+
+def p_main_start(p):
+    """
+    main_start :
+    """
+
+    compiler.patch_main_start()
+
+
+def p_function_declaration_list(p):
+    """
+    function_declaration_list : function_declaration function_declaration_list
+                              | empty
+    """
+
+
+def p_function_declaration(p):
+    """
+    function_declaration : FUNCTION ID register_function L_PARENTHESIS R_PARENTHESIS L_CURLY_BRACE begin_block R_CURLY_BRACE
+    """
+
+    compiler.generate_function_end()
+
+
+def p_register_function(p):
+    """
+    register_function :
+    """
+
+    compiler.register_function(p[-1], p.lineno(-1))
+
+
 def p_statement_list(p):
     """
     statement_list : statement statement_list
@@ -85,6 +125,7 @@ def p_statement_list(p):
 def p_statement(p):
     """
     statement : assignment
+              | function_call
               | for
               | write
               | if
@@ -107,6 +148,14 @@ def p_write(p):
     """
 
     compiler.generate_write()
+
+
+def p_function_call(p):
+    """
+    function_call : ID L_PARENTHESIS R_PARENTHESIS SEMICOLON
+    """
+
+    compiler.generate_function_call(p[1], p.lineno(1))
 
 
 def p_if(p):

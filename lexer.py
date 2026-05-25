@@ -20,6 +20,7 @@ reserved = {
     "else": "ELSE",
     "for": "FOR",
     "while": "WHILE",
+    "function": "FUNCTION",
     "true": "BOOL_CTE",
     "false": "BOOL_CTE",
 }
