@@ -32,12 +32,17 @@ def _format_source_context(lineno: int, column: int = None) -> str:
 class CompilerError(Exception):
     """Base class for all compiler errors."""
 
-    category = "Compiler Error"
-
-    def __init__(self, message: str, lineno: int = None, column: int = None):
+    def __init__(
+        self,
+        message: str,
+        lineno: int = None,
+        column: int = None,
+        error_type: str = "Semantic Error",
+    ):
         self.message = message
         self.lineno = lineno
         self.column = column
+        self.error_type = error_type
 
         location_parts = []
         if _source_name:
@@ -50,31 +55,11 @@ class CompilerError(Exception):
         location = f" ({', '.join(location_parts)})" if location_parts else ""
         context = _format_source_context(lineno, column)
 
-        super().__init__(f"[{self.category}]{location} {message}{context}")
-
-
-class LexicalError(CompilerError):
-    """Raised when the lexer finds an invalid character."""
-
-    category = "Lexical Error"
-
-
-class SyntaxCompilerError(CompilerError):
-    """Raised when the parser finds invalid syntax."""
-
-    category = "Syntax Error"
-
-
-class SemanticError(CompilerError):
-    """Raised when semantic validation fails."""
-
-    category = "Semantic Error"
+        super().__init__(f"[{error_type}]{location} {message}{context}")
 
 
 class TypeError(CompilerError):
     """Raised when operand types are incompatible."""
-
-    category = "Semantic Error"
 
     def __init__(self, left, operator, right, lineno=None, column=None):
         super().__init__(
@@ -87,8 +72,6 @@ class TypeError(CompilerError):
 class UndeclaredVariableError(CompilerError):
     """Raised when a variable is used before being declared."""
 
-    category = "Semantic Error"
-
     def __init__(self, name: str, lineno=None, column=None):
         super().__init__(f"Variable '{name}' used before declaration", lineno, column)
 
@@ -96,16 +79,12 @@ class UndeclaredVariableError(CompilerError):
 class RedeclaredVariableError(CompilerError):
     """Raised when a variable is declared more than once."""
 
-    category = "Semantic Error"
-
     def __init__(self, name: str, lineno=None, column=None):
         super().__init__(f"Variable '{name}' already declared", lineno, column)
 
 
 class AssignmentTypeError(CompilerError):
     """Raised when assigned value type doesn't match variable type."""
-
-    category = "Semantic Error"
 
     def __init__(self, var: str, expected, got, lineno=None, column=None):
         super().__init__(

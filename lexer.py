@@ -1,5 +1,5 @@
 from ply import lex
-from utils.errors import LexicalError
+from utils.errors import CompilerError
 
 reserved = {
     "program": "PROGRAM",
@@ -105,8 +105,18 @@ def t_STRING_CTE(t):
 
 
 def t_CHAR_CTE(t):
-    r"\'.\'"
-    t.value = t.value[1:-1]
+    r"'[^'\n]*'"
+    value = t.value[1:-1]
+    if len(value) != 1:
+        line_start = t.lexer.lexdata.rfind("\n", 0, t.lexpos) + 1
+        column = t.lexpos - line_start + 1
+        raise CompilerError(
+            f"Invalid char literal {t.value}: char literals must contain exactly one character",
+            t.lineno,
+            column,
+            "Compiler Error",
+        )
+    t.value = value
     return t
 
 
@@ -121,7 +131,12 @@ t_ignore = " \t"
 def t_error(t):
     line_start = t.lexer.lexdata.rfind("\n", 0, t.lexpos) + 1
     column = t.lexpos - line_start + 1
-    raise LexicalError(f"Illegal character '{t.value[0]}'", t.lineno, column)
+    raise CompilerError(
+        f"Illegal character '{t.value[0]}'",
+        t.lineno,
+        column,
+        "Compiler Error",
+    )
 
 
 lexer = lex.lex()

@@ -1,7 +1,7 @@
 from ply import yacc
 from lexer import tokens
 from semantic import CompilerState
-from utils.errors import SyntaxCompilerError
+from utils.errors import CompilerError
 
 precedence = (
     ("left", "OR"),
@@ -580,12 +580,18 @@ def p_error(p):
     if p:
         column = _find_column(p.lexer.lexdata, p.lexpos)
         expected = _format_expected_tokens(_expected_tokens())
-        raise SyntaxCompilerError(
-            f"Unexpected token '{p.value}'.{expected}", p.lineno, column
+        raise CompilerError(
+            f"Unexpected token '{p.value}'.{expected}",
+            p.lineno,
+            column,
+            "Syntax Error",
         )
     else:
         expected = _format_expected_tokens(_expected_tokens())
-        raise SyntaxCompilerError(f"Unexpected end of file.{expected}")
+        raise CompilerError(
+            f"Unexpected end of file.{expected}",
+            error_type="Syntax Error",
+        )
 
 
 parser = yacc.yacc()

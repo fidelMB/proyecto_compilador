@@ -8,7 +8,7 @@ parenthesized expressions.
 
 from utils.stack import Stack, FALSE_BOTTOM
 from utils.types import Type, result_type, is_compatible_assign, token_to_type
-from utils.errors import SemanticError as CompilerError, TypeError, AssignmentTypeError
+from utils.errors import CompilerError, TypeError, AssignmentTypeError
 from symbol_table import SymbolTable
 from quadruples import QuadrupleList
 from virtual_memory import VirtualMemory

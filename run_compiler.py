@@ -246,9 +246,14 @@ def main():
         with open(filename, "r") as file:
             data = file.read()
 
+        set_error_source(data, filename)
         reset_compiler_state()
         run_lexer(data)
         run_parser(data, debug=debug, source_name=filename)
+
+    except CompilerError as ce:
+        print(f"\n{ce}")
+        sys.exit(1)
 
     except FileNotFoundError:
         print(f"ERROR: File '{filename}' not found")
