@@ -1,7 +1,7 @@
 from ply import yacc
 from lexer import tokens
 from semantic import CompilerState
-from utils.errors import CompilerError
+from utils.errors import SyntaxCompilerError
 
 precedence = (
     ("left", "OR"),
@@ -37,7 +37,7 @@ def p_declaration(p):
     """
 
     for var_name in p[2]:
-        compiler.declare_variable(var_name, p[4])
+        compiler.declare_variable(var_name, p[4], p.lineno(1))
 
 
 def p_declaration_list(p):
@@ -146,7 +146,7 @@ def p_assignment(p):
     assignment : ID ASSIGN expression SEMICOLON
     """
 
-    compiler.generate_assignment(p[1])
+    compiler.generate_assignment(p[1], p.lineno(1))
 
 
 def p_write(p):
@@ -341,7 +341,7 @@ def p_cte_int(p):
     cte : INT_CTE
     """
 
-    compiler.push_constant(p[1], "INT_CTE")
+    compiler.push_constant(p[1], "INT_CTE", p.lineno(1))
 
 
 def p_cte_float(p):
@@ -349,7 +349,7 @@ def p_cte_float(p):
     cte : FLOAT_CTE
     """
 
-    compiler.push_constant(p[1], "FLOAT_CTE")
+    compiler.push_constant(p[1], "FLOAT_CTE", p.lineno(1))
 
 
 def p_cte_bool(p):
@@ -357,7 +357,7 @@ def p_cte_bool(p):
     cte : BOOL_CTE
     """
 
-    compiler.push_constant(p[1], "BOOL_CTE")
+    compiler.push_constant(p[1], "BOOL_CTE", p.lineno(1))
 
 
 def p_cte_string(p):
@@ -365,7 +365,7 @@ def p_cte_string(p):
     cte : STRING_CTE
     """
 
-    compiler.push_constant(p[1], "STRING_CTE")
+    compiler.push_constant(p[1], "STRING_CTE", p.lineno(1))
 
 
 def p_cte_char(p):
@@ -373,7 +373,7 @@ def p_cte_char(p):
     cte : CHAR_CTE
     """
 
-    compiler.push_constant(p[1], "CHAR_CTE")
+    compiler.push_constant(p[1], "CHAR_CTE", p.lineno(1))
 
 
 def p_unary_expression(p):
@@ -391,67 +391,67 @@ def p_factor_uminus(p):
     factor : MINUS factor %prec UMINUS
     """
 
-    compiler.generate_unary_minus()
+    compiler.generate_unary_minus(p.lineno(1))
 
 
 def p_push_plus(p):
     "push_plus :"
-    compiler.push_operator("+")
+    compiler.push_operator("+", p.lineno(-1))
 
 
 def p_push_minus(p):
     "push_minus :"
-    compiler.push_operator("-")
+    compiler.push_operator("-", p.lineno(-1))
 
 
 def p_push_mult(p):
     "push_mult :"
-    compiler.push_operator("*")
+    compiler.push_operator("*", p.lineno(-1))
 
 
 def p_push_div(p):
     "push_div :"
-    compiler.push_operator("/")
+    compiler.push_operator("/", p.lineno(-1))
 
 
 def p_push_lt(p):
     "push_lt :"
-    compiler.push_operator("<")
+    compiler.push_operator("<", p.lineno(-1))
 
 
 def p_push_le(p):
     "push_le :"
-    compiler.push_operator("<=")
+    compiler.push_operator("<=", p.lineno(-1))
 
 
 def p_push_gt(p):
     "push_gt :"
-    compiler.push_operator(">")
+    compiler.push_operator(">", p.lineno(-1))
 
 
 def p_push_ge(p):
     "push_ge :"
-    compiler.push_operator(">=")
+    compiler.push_operator(">=", p.lineno(-1))
 
 
 def p_push_eq(p):
     "push_eq :"
-    compiler.push_operator("==")
+    compiler.push_operator("==", p.lineno(-1))
 
 
 def p_push_ne(p):
     "push_ne :"
-    compiler.push_operator("!=")
+    compiler.push_operator("!=", p.lineno(-1))
 
 
 def p_push_and(p):
     "push_and :"
-    compiler.push_operator("and")
+    compiler.push_operator("and", p.lineno(-1))
 
 
 def p_push_or(p):
     "push_or :"
-    compiler.push_operator("or")
+    compiler.push_operator("or", p.lineno(-1))
 
 
 def p_push_false_bottom(p):
@@ -476,11 +476,116 @@ def p_empty(p):
     """
 
 
+def _find_column(source: str, lexpos: int) -> int:
+    line_start = source.rfind("\n", 0, lexpos) + 1
+    return lexpos - line_start + 1
+
+
+TOKEN_DISPLAY_NAMES = {
+    "PROGRAM": "'program'",
+    "MAIN": "'main'",
+    "VAR": "'var'",
+    "BEGIN": "'begin'",
+    "END": "'end'",
+    "WRITE": "'write'",
+    "IF": "'if'",
+    "THEN": "'then'",
+    "AND": "'and'",
+    "OR": "'or'",
+    "ELSE": "'else'",
+    "FOR": "'for'",
+    "WHILE": "'while'",
+    "DO": "'do'",
+    "FUNCTION": "'function'",
+    "INT_DECLARATION": "'int'",
+    "FLOAT_DECLARATION": "'float'",
+    "BOOL_DECLARATION": "'bool'",
+    "STRING_DECLARATION": "'string'",
+    "CHAR_DECLARATION": "'char'",
+    "ID": "identifier",
+    "INT_CTE": "integer literal",
+    "FLOAT_CTE": "float literal",
+    "BOOL_CTE": "boolean literal",
+    "STRING_CTE": "string literal",
+    "CHAR_CTE": "char literal",
+    "INCREMENT": "'++'",
+    "DECREMENT": "'--'",
+    "PLUS": "'+'",
+    "MINUS": "'-'",
+    "MULTIPLY": "'*'",
+    "DIVIDE": "'/'",
+    "SEMICOLON": "';'",
+    "COLON": "':'",
+    "COMMA": "','",
+    "L_PARENTHESIS": "'('",
+    "R_PARENTHESIS": "')'",
+    "L_CURLY_BRACE": "'{'",
+    "R_CURLY_BRACE": "'}'",
+    "EQUALITY": "'=='",
+    "ASSIGN": "':='",
+    "INEQUALITY": "'!='",
+    "LESS_EQUAL": "'<='",
+    "GREATER_EQUAL": "'>='",
+    "LESS_THAN": "'<'",
+    "GREATER_THAN": "'>'",
+    "$end": "end of file",
+}
+
+
+def _expected_tokens():
+    try:
+        state = parser.statestack[-1]
+        actions = parser.action.get(state, {})
+    except (AttributeError, IndexError, NameError):
+        return []
+
+    expected = []
+    for token_name, action in actions.items():
+        if action:
+            expected.append(token_name)
+
+    priority = {
+        "SEMICOLON": 0,
+        "R_PARENTHESIS": 1,
+        "R_CURLY_BRACE": 2,
+        "L_CURLY_BRACE": 3,
+        "THEN": 4,
+        "DO": 5,
+        "$end": 6,
+    }
+
+    return sorted(set(expected), key=lambda token: (priority.get(token, 100), token))
+
+
+def _format_expected_tokens(expected):
+    if not expected:
+        return ""
+
+    displayed = [TOKEN_DISPLAY_NAMES.get(token, token) for token in expected]
+    hint = ""
+    if "SEMICOLON" in expected:
+        hint = " A semicolon may be missing before this token."
+
+    if len(expected) == 1:
+        return f" Expected {displayed[0]}.{hint}"
+
+    if len(expected) <= 14:
+        return f" Expected one of: {', '.join(displayed)}.{hint}"
+
+    shown = ", ".join(displayed[:14])
+    return f" Expected one of: {shown}, ... ({len(expected)} possible tokens).{hint}"
+
+
 def p_error(p):
     if p:
-        raise CompilerError(f"Syntax error at '{p.value}'", p.lineno)
+        column = _find_column(p.lexer.lexdata, p.lexpos)
+        expected = _format_expected_tokens(_expected_tokens())
+        raise SyntaxCompilerError(
+            f"Unexpected token '{p.value}'.{expected}", p.lineno, column
+        )
     else:
-        raise CompilerError("Syntax error at EOF")
+        expected = _format_expected_tokens(_expected_tokens())
+        raise SyntaxCompilerError(f"Unexpected end of file.{expected}")
 
 
 parser = yacc.yacc()

@@ -8,7 +8,7 @@ parenthesized expressions.
 
 from utils.stack import Stack, FALSE_BOTTOM
 from utils.types import Type, result_type, is_compatible_assign, token_to_type
-from utils.errors import CompilerError, TypeError, AssignmentTypeError
+from utils.errors import SemanticError as CompilerError, TypeError, AssignmentTypeError
 from symbol_table import SymbolTable
 from quadruples import QuadrupleList
 from virtual_memory import VirtualMemory
@@ -28,7 +28,9 @@ class CompilerState:
         # Semantic stacks
         self.operands = Stack()  # variable addresses or temp names
         self.types = Stack()  # Type enum values parallel to operands
+        self.operand_lines = Stack()
         self.operators = Stack()  # operator strings
+        self.operator_lines = Stack()
         self.jumps = Stack()  # quadruple indices for jump patching
 
     # --- For loop ---------------------------------------------------------
@@ -81,6 +83,7 @@ class CompilerState:
             self.quads.emit(actual_op, symbol.address, one_address, symbol.address)
             self.operands.push(temp)
             self.types.push(symbol.var_type)
+            self.operand_lines.push(lineno)
         else:
             # No result needed — just mutate in place
             self.quads.emit(actual_op, symbol.address, one_address, symbol.address)
@@ -100,28 +103,33 @@ class CompilerState:
         symbol = self.symbols.lookup(name, lineno)
         self.operands.push(symbol.address)
         self.types.push(symbol.var_type)
+        self.operand_lines.push(lineno)
 
-    def push_constant(self, value, token_type: str):
+    def push_constant(self, value, token_type: str, lineno: int = None):
         """Step 2 / 3 – push a literal constant."""
         const_type = token_to_type(token_type)
         address = self.memory.alloc_const(value, const_type)
         self.operands.push(address)
         self.types.push(const_type)
+        self.operand_lines.push(lineno)
 
-    def push_operator(self, op: str):
+    def push_operator(self, op: str, lineno: int = None):
         """Step 2 / 3: PUSH pila-operadores(operador)"""
         self.operators.push(op)
+        self.operator_lines.push(lineno)
 
     # --- False bottom (parentheses) -----------------------------------
 
     def push_false_bottom(self):
         """Step 6: PUSH pila-operadores(marca de fondo falso)"""
         self.operators.push(FALSE_BOTTOM)
+        self.operator_lines.push(None)
 
     def pop_false_bottom(self):
         """Step 7: POP pila-operadores ... se quita marca de fondo falso"""
         if self.operators.top() == FALSE_BOTTOM:
             self.operators.pop()
+            self.operator_lines.pop()
 
     # --- Expression evaluation ----------------------------------------
 
@@ -148,16 +156,19 @@ class CompilerState:
 
         right_val = self.operands.pop()
         right_type = self.types.pop()
+        self.operand_lines.pop()
 
         left_val = self.operands.pop()
         left_type = self.types.pop()
+        left_line = self.operand_lines.pop()
 
         operator = self.operators.pop()
+        operator_line = self.operator_lines.pop()
 
         res_type = result_type(left_type, right_type, operator)
 
         if res_type == Type.ERROR:
-            raise TypeError(left_type, operator, right_type)
+            raise TypeError(left_type, operator, right_type, operator_line or left_line)
 
         temp = self.memory.alloc("temp", res_type)
 
@@ -165,6 +176,7 @@ class CompilerState:
 
         self.operands.push(temp)
         self.types.push(res_type)
+        self.operand_lines.push(operator_line or left_line)
 
     # --- Assignment ---------------------------------------------------
 
@@ -177,6 +189,7 @@ class CompilerState:
 
         value = self.operands.pop()
         val_type = self.types.pop()
+        self.operand_lines.pop()
 
         if not is_compatible_assign(symbol.var_type, val_type):
             raise AssignmentTypeError(var_name, symbol.var_type, val_type, lineno)
@@ -200,6 +213,7 @@ class CompilerState:
 
         self.operands.push(temp)
         self.types.push(symbol.var_type)
+        self.operand_lines.push(lineno)
 
     def generate_decrement(self, var_name: str, lineno=None):
         symbol = self.symbols.lookup(var_name, lineno)
@@ -218,15 +232,18 @@ class CompilerState:
 
         self.operands.push(temp)
         self.types.push(symbol.var_type)
+        self.operand_lines.push(lineno)
 
-    def generate_unary_minus(self):
+    def generate_unary_minus(self, lineno: int = None):
 
         value = self.operands.pop()
         value_type = self.types.pop()
+        value_line = self.operand_lines.pop()
 
         if value_type not in (Type.INT, Type.FLOAT):
             raise CompilerError(
-                f"Unary minus not supported for type '{value_type.value}'"
+                f"Unary minus not supported for type '{value_type.value}'",
+                lineno or value_line,
             )
 
         temp = self.memory.alloc("temp", value_type)
@@ -235,15 +252,19 @@ class CompilerState:
 
         self.operands.push(temp)
         self.types.push(value_type)
+        self.operand_lines.push(lineno or value_line)
 
     # --- Control flow -------------------------------------------------
 
-    def generate_gotof(self):
+    def generate_gotof(self, lineno: int = None):
 
         expr_type = self.types.pop()
+        expr_line = self.operand_lines.pop()
 
         if expr_type != Type.BOOL:
-            raise CompilerError("Conditional expression must be boolean")
+            raise CompilerError(
+                "Conditional expression must be boolean", lineno or expr_line
+            )
 
         condition = self.operands.pop()
 
@@ -300,7 +321,7 @@ class CompilerState:
         start = self.quads.current_index()
         self.functions[name] = start
 
-        for call_idx in self.pending_function_calls.pop(name, []):
+        for call_idx, _lineno in self.pending_function_calls.pop(name, []):
             self.quads.patch(call_idx, start)
 
     def generate_function_end(self):
@@ -315,18 +336,20 @@ class CompilerState:
         idx = self.quads.emit("Gosub", None, None, target)
 
         if target is None:
-            self.pending_function_calls.setdefault(name, []).append(idx)
+            self.pending_function_calls.setdefault(name, []).append((idx, lineno))
 
     def validate_function_calls(self):
         if self.pending_function_calls:
             name = next(iter(self.pending_function_calls))
-            raise CompilerError(f"Function '{name}' called before declaration")
+            _call_idx, lineno = self.pending_function_calls[name][0]
+            raise CompilerError(f"Function '{name}' called before declaration", lineno)
 
     # --- Write --------------------------------------------------------
 
     def generate_write(self):
         value = self.operands.pop()
         self.types.pop()
+        self.operand_lines.pop()
         self.quads.emit("Write", value, None, None)
 
     # --- Variable declaration ----------------------------------------
@@ -354,6 +377,7 @@ class CompilerState:
         if not self.operands.is_empty():
             self.operands.pop()
             self.types.pop()
+            self.operand_lines.pop()
 
         update_start = self.for_update_starts.pop()
         update_quads = self.quads.extract_from(update_start)

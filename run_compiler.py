@@ -1,7 +1,7 @@
 from lexer import lexer
 import parser as parser_module
 from vm import VirtualMachine
-from utils.errors import CompilerError
+from utils.errors import CompilerError, set_error_source
 from contextlib import redirect_stdout, redirect_stderr
 from pathlib import Path
 import io
@@ -33,8 +33,16 @@ def run_lexer(data, verbose=True):
             print(tok)
 
 
-def compile_source(data, debug=False, show_lexer=False, execute=True, exit_on_error=True):
+def compile_source(
+    data,
+    debug=False,
+    show_lexer=False,
+    execute=True,
+    exit_on_error=True,
+    source_name=None,
+):
     reset_compiler_state()
+    set_error_source(data, source_name)
 
     if show_lexer:
         run_lexer(data, verbose=True)
@@ -56,8 +64,9 @@ def compile_source(data, debug=False, show_lexer=False, execute=True, exit_on_er
     return None
 
 
-def run_parser(data, debug=True):
+def run_parser(data, debug=True, source_name=None):
     print("\n===== SYNTAX ANALYSIS =====")
+    set_error_source(data, source_name)
     try:
         lexer.lineno = 1
         parser_module.parser.parse(data, lexer=lexer)
@@ -65,7 +74,7 @@ def run_parser(data, debug=True):
 
     except CompilerError as ce:
         # This catches TypeError, AssignmentTypeError, UndeclaredVariableError, etc.
-        print(f"\n[SEMANTIC ERROR] {ce}")
+        print(f"\n{ce}")
         sys.exit(1)
 
     except Exception as e:
@@ -122,6 +131,7 @@ def run_test_file(path, expect_success, verbose=False):
                 show_lexer=False,
                 execute=True,
                 exit_on_error=False,
+                source_name=str(path),
             )
             actual_program_output = vm.get_output()
 
@@ -238,7 +248,7 @@ def main():
 
         reset_compiler_state()
         run_lexer(data)
-        run_parser(data, debug=debug)
+        run_parser(data, debug=debug, source_name=filename)
 
     except FileNotFoundError:
         print(f"ERROR: File '{filename}' not found")

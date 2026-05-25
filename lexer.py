@@ -1,4 +1,5 @@
 from ply import lex
+from utils.errors import LexicalError
 
 reserved = {
     "program": "PROGRAM",
@@ -118,8 +119,9 @@ t_ignore = " \t"
 
 
 def t_error(t):
-    print(f"ERROR: Illegal character '{t.value[0]}' at line number {t.lineno}")
-    t.lexer.skip(1)
+    line_start = t.lexer.lexdata.rfind("\n", 0, t.lexpos) + 1
+    column = t.lexpos - line_start + 1
+    raise LexicalError(f"Illegal character '{t.value[0]}'", t.lineno, column)
 
 
 lexer = lex.lex()
