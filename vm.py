@@ -289,7 +289,19 @@ class VirtualMachine:
         if value is None:
             raise ValueError(f"Cannot assign uninitialized value")
 
-        self.memory.write(result, value)
+        self.memory.write(result, self._cast_for_assignment(value, result))
+
+    def _cast_for_assignment(self, value, target_address):
+        """Cast compatible numeric values to the destination type."""
+        _segment, target_type = self.memory.get_address_info(target_address)
+
+        if target_type == Type.INT and isinstance(value, float):
+            return int(value)
+
+        if target_type == Type.FLOAT and isinstance(value, int):
+            return float(value)
+
+        return value
 
     # ======================================================================
     # CONTROL FLOW
