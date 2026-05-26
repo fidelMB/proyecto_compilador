@@ -1,0 +1,22 @@
+program main {
+    var condition : bool;
+    var tilin, tilina : string;
+    var alpha : int;
+    begin;
+        write("Testing type isolation on boolean logic operators");
+        alpha := 1;
+        condition := true;
+
+        tilin := "hola";
+        tilina := "ssadasd";
+
+        write(tilin);
+
+        tilin := tilin + tilina;
+        write(tilin);
+
+        if (condition) then {
+            write("Failed restriction logic");
+        }
+    end;
+}

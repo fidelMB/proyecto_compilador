@@ -1,0 +1,11 @@
+program main{
+    var i,n,x : int;
+    
+    begin;
+        write("invoca factorial");
+        n := 5;
+        x := 1;
+        factorial();
+        write(x);
+    end;
+}

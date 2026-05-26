@@ -1,0 +1,13 @@
+program main{
+    var msg : string;
+    begin;
+        msg := "hi";
+        if (msg == "hi") then
+        {
+            write(msg);
+        }else
+        {
+            write("no");
+        }
+    end;
+}

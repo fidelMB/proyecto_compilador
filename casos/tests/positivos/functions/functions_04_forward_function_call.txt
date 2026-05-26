@@ -1,0 +1,18 @@
+program main{
+    var x : int;
+    function first(){
+    begin;
+        second();
+    end;
+    }
+    function second(){
+    begin;
+        x := 9;
+    end;
+    }
+    begin;
+        x := 0;
+        first();
+        write(x);
+    end;
+}

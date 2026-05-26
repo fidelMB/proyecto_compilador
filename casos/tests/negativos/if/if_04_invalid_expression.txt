@@ -1,0 +1,12 @@
+program main{
+    var a : int;
+    var text : string;
+    begin;
+        a := 1;
+        text := "x";
+        if (a + text) then
+        {
+            write(a);
+        }
+    end;
+}

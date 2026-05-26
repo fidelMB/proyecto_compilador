@@ -1,0 +1,7 @@
+program main{
+    var x : int;
+    begin;
+        x := 2 + 3 * 4;
+        write(x);
+    end;
+}

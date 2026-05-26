@@ -1,0 +1,13 @@
+program main{
+    var i,total : int;
+    begin;
+        i := 1;
+        total := 0;
+        while (i <= 4) do
+        {
+            total := total + i;
+            i++;
+        }
+        write(total);
+    end;
+}

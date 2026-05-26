@@ -1,0 +1,7 @@
+program main{
+    var x : float;
+    begin;
+        x := 5;
+        write(x);
+    end;
+}

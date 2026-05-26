@@ -1,0 +1,10 @@
+program main{
+    var a : int;
+    begin;
+        a := 1;
+        if (a) then
+        {
+            write(a);
+        }
+    end;
+}

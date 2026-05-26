@@ -1,0 +1,10 @@
+program main{
+    var i : int;
+    var limit : float;
+    begin;
+        limit := 3.5;
+        for (i:=0;i<limit;i++){
+            write(i);
+        }
+    end;
+}

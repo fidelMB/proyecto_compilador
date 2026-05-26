@@ -1,0 +1,5 @@
+program main{
+	begin;
+		write(5 + 3 * 2 - 1 / 8);
+	end;
+}

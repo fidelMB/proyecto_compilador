@@ -1,0 +1,9 @@
+program main{
+    var x : int;
+    var text : string;
+    begin;
+        x := 1;
+        text := "bad";
+        write(x + text);
+    end;
+}

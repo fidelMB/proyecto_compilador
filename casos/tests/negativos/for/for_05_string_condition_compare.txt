@@ -1,0 +1,10 @@
+program main{
+    var i : int;
+    var text : string;
+    begin;
+        text := "x";
+        for (i:=0;text<"z";i++){
+            write(i);
+        }
+    end;
+}

@@ -1,0 +1,11 @@
+program main{
+    var n : int;
+    begin;
+        n := 3;
+        while (n > 0) do
+        {
+            write(n);
+            n--;
+        }
+    end;
+}

@@ -1,0 +1,11 @@
+program main {
+    var grade_level : char;
+    begin;
+        write("Testing unary operator restriction rules");
+        grade_level := 'A';
+
+        grade_level--;
+
+        write(grade_level);
+    end;
+}

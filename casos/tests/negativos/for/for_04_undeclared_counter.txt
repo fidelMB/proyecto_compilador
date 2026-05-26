@@ -1,0 +1,7 @@
+program main{
+    begin;
+        for (i:=0;i<3;i++){
+            write(i);
+        }
+    end;
+}

@@ -1,0 +1,12 @@
+program main{
+    var i,limit : int;
+    begin;
+        i := 0;
+        limit := 3;
+        while ((i < limit) and (limit > 0)) do
+        {
+            write(i);
+            i++;
+        }
+    end;
+}

@@ -1,0 +1,10 @@
+program main{
+    var text : string;
+    begin;
+        text := "yes";
+        if (text) then
+        {
+            write(text);
+        }
+    end;
+}

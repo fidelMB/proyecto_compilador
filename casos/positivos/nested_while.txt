@@ -1,0 +1,20 @@
+program main{
+    var i, j, max_i, max_j, product : int;
+    begin;
+        write("nested while loops - grid product");
+        max_i := 3;
+        max_j := 3;
+        i := 1;
+        while (i <= max_i) do
+        {
+            j := 1;
+            while (j <= max_j) do
+            {
+                product := i * j;
+                write(product);
+                j++;
+            }
+            i++;
+        }
+    end;
+}

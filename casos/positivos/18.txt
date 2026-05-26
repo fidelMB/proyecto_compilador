@@ -1,0 +1,23 @@
+program main {
+    var a, b, x, y, result : int;
+    var valid_flag : bool;
+    begin;
+        write("Running valid expressions and nested control test");
+        a := 12;
+        b := a / 3;
+        x := (a * b) + (100 - b);
+        y := x;
+        valid_flag := true;
+
+        if (valid_flag) then {
+            if (true) then {
+                result := x + a;
+                write(result);
+            } else {
+                write("Nested execution branch logic failure");
+            }
+        } else {
+            write("Outer branch logic execution failure");
+        }
+    end;
+}

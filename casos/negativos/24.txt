@@ -1,0 +1,12 @@
+program main {
+    var x : int;
+    var y : float;
+    begin;
+        write("Testing cascading type evaluation logic");
+        
+
+        x := y := 10.5 + 4.5; 
+        
+        write(x);
+    end;
+}

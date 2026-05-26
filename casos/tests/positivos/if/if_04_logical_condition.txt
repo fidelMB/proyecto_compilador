@@ -1,0 +1,11 @@
+program main{
+    var a,b : int;
+    begin;
+        a := 5;
+        b := 10;
+        if ((a < b) and (b > 0)) then
+        {
+            write("ok");
+        }
+    end;
+}

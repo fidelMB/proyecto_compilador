@@ -1,0 +1,12 @@
+program main{
+    var n : int;
+    var text : string;
+    begin;
+        n := 1;
+        text := "x";
+        while (n + text) do
+        {
+            n--;
+        }
+    end;
+}

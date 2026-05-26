@@ -1,0 +1,7 @@
+program main{
+    var a : int;
+    var a : float;
+    begin;
+        a := 1;
+    end;
+}

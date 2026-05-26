@@ -1,0 +1,10 @@
+program main{
+    var i : int;
+    var flag : bool;
+    begin;
+        flag := true;
+        for (i:=0;i<3;flag++){
+            write(i);
+        }
+    end;
+}

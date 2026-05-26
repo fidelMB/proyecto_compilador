@@ -1,0 +1,12 @@
+program main{
+	var a : float;
+	var b,c : int;
+
+	begin;
+		b := 5;
+		c := 2;
+		a := b / c;
+		write(a);
+		write(b);
+	end;
+}

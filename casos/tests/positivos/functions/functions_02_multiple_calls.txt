@@ -1,0 +1,14 @@
+program main{
+    var x : int;
+    function inc(){
+    begin;
+        x++;
+    end;
+    }
+    begin;
+        x := 1;
+        inc();
+        inc();
+        write(x);
+    end;
+}

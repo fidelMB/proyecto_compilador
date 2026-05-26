@@ -1,0 +1,12 @@
+program main {
+    var total_count : int;
+    var ratio : float;
+    begin;
+        write("Testing assignment semantic validation rule");
+        ratio := 5.75;
+        
+        total_count := ratio; 
+        
+        write(total_count);
+    end;
+}

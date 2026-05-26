@@ -1,0 +1,16 @@
+program main{
+    var i, j, n, fact, total : int;
+    begin;
+        write("nested for loops - sum of factorials");
+        total := 0;
+        n := 3;    
+        for (i:=1; i<=n; i++){
+            fact := 1;
+            for (j:=1; j<=i; j++){
+                fact := fact * j;
+            }
+            total := total + fact;
+        }
+        write(total);
+    end;
+}

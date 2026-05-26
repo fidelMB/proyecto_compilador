@@ -1,0 +1,6 @@
+program main{
+    var x : char;
+    begin;
+        x := 'true';
+    end;
+}

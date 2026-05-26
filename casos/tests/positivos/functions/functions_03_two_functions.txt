@@ -1,0 +1,19 @@
+program main{
+    var x : int;
+    function one(){
+    begin;
+        x := x + 1;
+    end;
+    }
+    function two(){
+    begin;
+        x := x + 2;
+    end;
+    }
+    begin;
+        x := 0;
+        one();
+        two();
+        write(x);
+    end;
+}
